@@ -1,0 +1,28 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "worker": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": ["react"],
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      { "vars": "all", "args": "none    ", "ignoreRestSiblings": false }
+    ],
+    "no-extra-semi": "error"
+  }
+}
