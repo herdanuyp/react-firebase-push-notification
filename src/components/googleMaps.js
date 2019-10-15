@@ -1,5 +1,5 @@
 import React from "react";
-import { Input } from "semantic-ui-react";
+import { Input, Header } from "semantic-ui-react";
 
 // import './index.css';
 
@@ -81,6 +81,16 @@ export default class GoogleMap extends React.Component {
   render() {
     return (
       <div id="app">
+        <Header
+          as="h1"
+          content="Google Maps"
+          style={{
+            fontWeight: "normal",
+            marginBottom: 0,
+            fontSize: "4em",
+            marginTop: "1em"
+          }}
+        />
         <div id="pac-container">
           <Input id="pac-input" type="text" placeholder="Enter a location" />
         </div>

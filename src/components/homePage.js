@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { Component, useState, useEffect } from "react";
+import React, { Component } from "react";
 import {
   Button,
   Container,
@@ -13,34 +13,27 @@ import {
   Responsive,
   Segment,
   Sidebar,
-  Visibility
+  Visibility,
+  Message
 } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 
 import ResetWorld from "../assets/images/reset-world.jpg";
+import usePushNotifications from "../usePushNotification";
 
-import {
-  askUserPermission,
-  isPushNotificationSupported
-} from "../push-notification";
+const Error = ({ error }) =>
+  error ? (
+    <section className="app-error">
+      <h2>{error.name}</h2>
+      <p>Error message : {error.message}</p>
+      <p>Error code : {error.code}</p>
+    </section>
+  ) : null;
 
-import * as serviceWorker from "../serviceWorker";
-
-const pushNotificationSupported = isPushNotificationSupported();
-
-// const Error = ({ error }) =>
-//   error ? (
-//     <section className="app-error">
-//       <h2>{error.name}</h2>
-//       <p>Error message : {error.message}</p>
-//       <p>Error code : {error.code}</p>
-//     </section>
-//   ) : null;
-
-// const Loading = ({ loading }) =>
-//   loading ? (
-//     <div className="app-loader">Please wait, we are loading something...</div>
-//   ) : null;
+const Loading = ({ loading }) =>
+  loading ? (
+    <div className="app-loader">Please wait, we are loading something...</div>
+  ) : null;
 
 // Heads up!
 // We using React Static to prerender our docs with server side rendering, this is a quite simple solution.
@@ -55,37 +48,93 @@ const getWidth = () => {
 /* Heads up! HomepageHeading uses inline styling, however it's not the best practice. Use CSS or styled components for
  * such things.
  */
-const HomepageHeading = ({ mobile }) => (
-  <Container text>
-    <Header
-      as="h1"
-      content="Web Push Notification Demo"
-      inverted
-      style={{
-        fontSize: mobile ? "2em" : "4em",
-        fontWeight: "normal",
-        marginBottom: 0,
-        marginTop: mobile ? "1.5em" : "3em"
-      }}
-    />
-    <Header
-      as="h2"
-      content="Using Firebase Cloud Messaging"
-      inverted
-      style={{
-        fontSize: mobile ? "1.5em" : "1.7em",
-        fontWeight: "normal",
-        marginTop: mobile ? "0.5em" : "1.5em"
-      }}
-    />
-    <Button animated="fade" primary size="huge" onClick={askUserPermission}>
-      <Button.Content visible>Give Permission</Button.Content>
-      <Button.Content hidden>
-        <Icon name="hand peace outline" />
-      </Button.Content>
-    </Button>
-  </Container>
-);
+const HomepageHeading = ({ mobile }) => {
+  const {
+    userConsent,
+    onClickSendNotifiationFCM,
+    pushNotificationSupported,
+    onClickAskUserPermission,
+    userSubscription,
+    // onClickSusbribeToPushNotification,
+    // pushServerSubscriptionId,
+    // onClickSendSubscriptionToPushServer,
+    // onClickSendNotification,
+    error,
+    loading
+  } = usePushNotifications();
+
+  const isConsentGranted = userConsent === "granted";
+  return (
+    <Container text>
+      <Loading loading={loading} />
+      <Error error={error} />
+      <Message negative={!pushNotificationSupported && "NOT" ? true : false}>
+        <p>
+          Push notification are {!pushNotificationSupported && "NOT"} supported
+          by your device.
+        </p>
+      </Message>
+      <p></p>
+
+      <Header
+        as="h1"
+        content="Web Push Notification Demo"
+        inverted
+        style={{
+          fontSize: mobile ? "2em" : "4em",
+          fontWeight: "normal",
+          marginBottom: 0,
+          marginTop: mobile ? "1.5em" : "2em"
+        }}
+      />
+      <Header
+        as="h2"
+        content="Using Firebase Cloud Messaging"
+        inverted
+        style={{
+          fontSize: mobile ? "1.5em" : "1.7em",
+          fontWeight: "normal",
+          marginTop: mobile ? "0.5em" : "1.5em"
+        }}
+      />
+      <Header
+        as="h4"
+        content={`User seems like ${userConsent} to get push notifications.`}
+        inverted
+        style={{
+          fontSize: mobile ? "1.5em" : "1.7em",
+          fontWeight: "normal",
+          marginTop: mobile ? "0.5em" : "1.5em"
+        }}
+      />
+      <Button
+        animated="fade"
+        primary
+        size="huge"
+        disabled={!pushNotificationSupported || isConsentGranted}
+        onClick={onClickAskUserPermission}
+      >
+        <Button.Content visible>Give Permission</Button.Content>
+        <Button.Content hidden>
+          <Icon name="hand peace outline" />
+        </Button.Content>
+      </Button>
+
+      <Button
+        animated="fade"
+        primary
+        size="huge"
+        disabled={!pushNotificationSupported || !isConsentGranted}
+        onClick={onClickSendNotifiationFCM}
+      >
+        <Button.Content visible>Try now to send notification</Button.Content>
+        <Button.Content hidden>
+          <Icon name="hand peace outline" />
+        </Button.Content>
+      </Button>
+    </Container>
+  );
+};
 
 HomepageHeading.propTypes = {
   mobile: PropTypes.bool
@@ -201,7 +250,7 @@ class MobileContainer extends Component {
             style={{ minHeight: 350, padding: "1em 0em" }}
             vertical
           >
-            <Container>
+            {/* <Container>
               <Menu inverted pointing secondary size="large">
                 <Menu.Item onClick={this.handleToggle}>
                   <Icon name="sidebar" />
@@ -215,7 +264,7 @@ class MobileContainer extends Component {
                   </Button>
                 </Menu.Item>
               </Menu>
-            </Container>
+            </Container> */}
             <HomepageHeading mobile />
           </Segment>
 
@@ -242,11 +291,6 @@ ResponsiveContainer.propTypes = {
 };
 
 const HomepageLayout = () => {
-  useEffect(() => {
-    if (pushNotificationSupported) {
-      serviceWorker.register();
-    }
-  }, []);
   return (
     <ResponsiveContainer>
       <Segment style={{ padding: "8em 0em" }} vertical>

@@ -26,10 +26,6 @@ code {
   float: left;
 }
 
-#map {
-  margin-left: 200px;
-}
-
 #description {
   font-family: Roboto;
   font-size: 15px;
@@ -57,11 +53,6 @@ code {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   background-color: #fff;
   font-family: Roboto;
-}
-
-#pac-container {
-  padding-bottom: 12px;
-  margin-right: 12px;
 }
 
 .pac-controls {
